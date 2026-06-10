@@ -1,13 +1,5 @@
 import { prisma } from "@/lib/prisma"
-
-/** Represents a single skill progress entry for a user in a given area and topic. */
-export interface SkillProgressEntry {
-  readonly area: string
-  readonly topic: string
-  readonly accuracy: number
-  readonly total: number
-  readonly correct: number
-}
+import type { SkillProgressEntry } from "@/models/skill-progress.model"
 
 /**
  * Retrieves all skill progress records for a given user.
