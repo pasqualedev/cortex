@@ -7,6 +7,7 @@ import { BrainStatus } from "@/components/brain-status/brain-status"
 import { SkillCard } from "@/components/skill-card/skill-card"
 import { Button } from "@/components/ui/button"
 
+/** @description Main dashboard showing brain status, challenge CTA, and skill area cards */
 export default function DashboardPage() {
   const router = useRouter()
   const { data, isPending } = useDashboard()

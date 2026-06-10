@@ -19,7 +19,7 @@ export function XpFeedback({ isCorrect, xpEarned, correctKey }: XpFeedbackProps)
       <span>
         {isCorrect ? "Correto!" : `Resposta Correta: ${correctKey}`}
       </span>
-      <span className="font-semibold text-indigo-400">+{xpEarned} XP</span>
+      <span className={`font-semibold ${isCorrect ? "text-green-400" : "text-red-400"}`}>+{xpEarned} XP</span>
     </div>
   )
 }
