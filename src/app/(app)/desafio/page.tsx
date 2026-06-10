@@ -42,8 +42,10 @@ export default function DesafioPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Desafio</h1>
         <button
+          type="button"
           onClick={() => router.push("/dashboard")}
           className="text-sm text-zinc-500 hover:text-zinc-300"
+          aria-label="Sair do desafio"
         >
           Sair
         </button>

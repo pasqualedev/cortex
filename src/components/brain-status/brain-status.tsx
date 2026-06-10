@@ -30,7 +30,7 @@ export function BrainStatus({
         </div>
         <div>
           <p className="text-zinc-500">Streak</p>
-          <p className="text-xl font-bold">🔥 {streakDays} dias</p>
+          <p className="text-xl font-bold"><span aria-hidden="true">🔥</span> {streakDays} dias</p>
         </div>
         <div>
           <p className="text-zinc-500">XP Total</p>

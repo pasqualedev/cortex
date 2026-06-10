@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 /** @description Main dashboard showing brain status, challenge CTA, and skill area cards */
 export default function DashboardPage() {
   const router = useRouter()
-  const { data, isPending } = useDashboard()
+  const { data, isPending, isError } = useDashboard()
 
   useEffect(() => {
     if (data?.user.targetScore === null) {
@@ -22,6 +22,14 @@ export default function DashboardPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-zinc-500">Carregando...</p>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-zinc-500">Erro ao carregar o dashboard. Tente novamente.</p>
       </div>
     )
   }
@@ -56,12 +64,13 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <button
+      <Button
+        variant="ghost"
         onClick={() => router.push("/skill-tree")}
-        className="text-sm text-zinc-500 hover:text-zinc-300 transition-opacity w-full text-left"
+        className="text-sm text-zinc-500 hover:text-zinc-300 w-full justify-start px-0"
       >
         Ver Skill Tree completa →
-      </button>
+      </Button>
     </div>
   )
 }

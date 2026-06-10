@@ -5,6 +5,10 @@ import type { DashboardData } from "@/models/user.model"
 export function useDashboard() {
   return useQuery<DashboardData>({
     queryKey: ["dashboard"],
-    queryFn: () => fetch("/api/v1/dashboard").then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch("/api/v1/dashboard")
+      if (!res.ok) throw new Error(`Dashboard request failed: ${res.status}`)
+      return res.json() as Promise<DashboardData>
+    },
   })
 }

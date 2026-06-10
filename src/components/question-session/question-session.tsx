@@ -1,12 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import { z } from "zod"
 import { useChallengeStore } from "@/store/challenge.store"
 import { QuestionCard } from "./question-card"
 import { XpFeedback } from "./xp-feedback"
 import { Button } from "@/components/ui/button"
 import type { AnswerResult } from "@/models/answer.model"
+
+const answerResultSchema = z.object({
+  isCorrect: z.boolean(),
+  xpEarned: z.number(),
+  correctKey: z.string(),
+  newXp: z.number(),
+  newLevel: z.number(),
+  newStreakDays: z.number(),
+})
 
 interface QuestionSessionProps {
   readonly onComplete: () => void
@@ -21,43 +31,55 @@ export function QuestionSession({ onComplete }: QuestionSessionProps) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<AnswerResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
   const currentQuestion = questions[currentIndex]
 
-  const consecutiveCorrect = (() => {
+  const consecutiveCorrect = useMemo(() => {
     let count = 0
     for (let i = answers.length - 1; i >= 0; i--) {
       if (answers[i]?.isCorrect) count++
       else break
     }
     return count
-  })()
+  }, [answers])
 
   async function handleAnswer(key: string) {
     if (feedback !== null || loading || currentQuestion === undefined) return
     setSelectedKey(key)
     setLoading(true)
+    setFetchError(null)
 
-    const res = await fetch("/api/v1/answers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const res = await fetch("/api/v1/answers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: currentQuestion.id,
+          chosenKey: key,
+          consecutiveCorrect,
+        }),
+      })
+
+      if (!res.ok) throw new Error(`Answer request failed: ${res.status}`)
+
+      const parsed = answerResultSchema.safeParse(await res.json())
+      if (!parsed.success) throw new Error("Invalid response from server")
+
+      const result = parsed.data
+      setFeedback(result)
+      recordAnswer({
         questionId: currentQuestion.id,
         chosenKey: key,
-        consecutiveCorrect,
-      }),
-    })
-
-    const result = await res.json() as AnswerResult
-    setFeedback(result)
-    setLoading(false)
-
-    recordAnswer({
-      questionId: currentQuestion.id,
-      chosenKey: key,
-      isCorrect: result.isCorrect,
-      xpEarned: result.xpEarned,
-    })
+        isCorrect: result.isCorrect,
+        xpEarned: result.xpEarned,
+      })
+    } catch {
+      setFetchError("Erro ao enviar resposta. Tente novamente.")
+      setSelectedKey(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleNext() {
@@ -87,6 +109,10 @@ export function QuestionSession({ onComplete }: QuestionSessionProps) {
         selectedKey={selectedKey}
         correctKey={feedback?.correctKey ?? null}
       />
+
+      {fetchError && (
+        <p role="alert" className="text-sm text-red-400">{fetchError}</p>
+      )}
 
       {feedback !== null && (
         <>

@@ -7,7 +7,7 @@ interface SkillCardProps {
 
 /** Compact area progress card shown in the dashboard skill overview */
 export function SkillCard({ area }: SkillCardProps) {
-  const pct = Math.round(area.accuracy * 100)
+  const accuracyPct = Math.round(area.accuracy * 100)
 
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 space-y-2">
@@ -16,8 +16,8 @@ export function SkillCard({ area }: SkillCardProps) {
         <span className="text-zinc-500">{area.total} questões</span>
       </div>
       <div className="space-y-1">
-        <Progress value={pct} className="h-1.5 bg-zinc-800" />
-        <p className="text-right text-xs text-indigo-400">{pct}%</p>
+        <Progress value={accuracyPct} className="h-1.5 bg-zinc-800" />
+        <p className="text-right text-xs text-indigo-400">{accuracyPct}%</p>
       </div>
     </div>
   )
