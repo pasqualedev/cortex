@@ -10,8 +10,9 @@ import { upsertSkillProgress } from "@/repositories/skill-progress.repository"
  */
 export const LEVEL_THRESHOLDS: readonly number[] = (() => {
   const thresholds: number[] = [0]
-  for (let n = 2; n <= 50; n++) {
-    thresholds.push(thresholds[n - 2] + n * 50)
+  for (let n = 1; n <= 49; n++) {
+    const last = thresholds[thresholds.length - 1] ?? 0
+    thresholds.push(last + 100 + 25 * n * (n - 1))
   }
   return thresholds
 })()
@@ -41,7 +42,7 @@ export function calcXpEarned(params: {
 export function calcNewLevel(totalXp: number): number {
   let level = 1
   for (let i = 1; i < LEVEL_THRESHOLDS.length; i++) {
-    if (totalXp >= LEVEL_THRESHOLDS[i]) level = i + 1
+    if (totalXp >= (LEVEL_THRESHOLDS[i] ?? 0)) level = i + 1
     else break
   }
   return level
