@@ -1,12 +1,31 @@
 import { PrismaClient } from "@prisma/client"
+import { z } from "zod"
 
 const prisma = new PrismaClient()
 const BASE_URL = "https://api.enem.dev/v1"
 
+const examListSchema = z.object({
+  exams: z.array(z.object({ year: z.number() })),
+})
+
+const questionListSchema = z.object({
+  questions: z.array(
+    z.object({
+      index: z.number(),
+      discipline: z.string(),
+      context: z.string().optional().default(""),
+      files: z.array(z.string()).optional().default([]),
+      alternatives: z.array(z.object({ letter: z.string(), text: z.string() })),
+      correctAlternative: z.string(),
+    })
+  ),
+})
+
+/** Topic and subtopic assigned to each normalized ENEM area */
 const TOPIC_MAP: Record<string, { topic: string; subtopic: string }> = {
   Matemática: { topic: "Matemática Geral", subtopic: "Sem classificação" },
-  "Ciências Humanas": { topic: "Humanas Geral", subtopic: "Sem classificação" },
-  "Ciências da Natureza": { topic: "Natureza Geral", subtopic: "Sem classificação" },
+  Humanas: { topic: "Humanas Geral", subtopic: "Sem classificação" },
+  Natureza: { topic: "Natureza Geral", subtopic: "Sem classificação" },
   Linguagens: { topic: "Linguagens Geral", subtopic: "Sem classificação" },
 }
 
@@ -55,22 +74,15 @@ async function fetchWithRetry(url: string, retries = 3): Promise<unknown> {
  */
 async function importYear(year: number): Promise<void> {
   console.log(`\nImporting year ${year}...`)
-  const data = (await fetchWithRetry(`${BASE_URL}/exams/${year}/questions`)) as {
-    questions: Array<{
-      index: number
-      discipline: string
-      context: string
-      files: string[]
-      alternatives: Array<{ letter: string; text: string }>
-      correctAlternative: string
-    }>
-  }
+  const raw = await fetchWithRetry(`${BASE_URL}/exams/${year}/questions`)
+  const parsed = questionListSchema.safeParse(raw)
+  if (!parsed.success) throw new Error(`Invalid question list response for year ${year}: ${parsed.error.message}`)
 
-  const questions = data.questions ?? []
+  const questions = parsed.data.questions
   console.log(`  Found ${questions.length} questions`)
 
   for (const q of questions) {
-    const area = normalizeArea(q.discipline ?? "")
+    const area = normalizeArea(q.discipline)
     const { topic, subtopic } = TOPIC_MAP[area] ?? {
       topic: "Outros",
       subtopic: "Sem classificação",
@@ -85,13 +97,13 @@ async function importYear(year: number): Promise<void> {
         area,
         topic,
         subtopic,
-        statement: q.context ?? "",
+        statement: q.context,
         alternatives: q.alternatives.map((a) => ({
           key: a.letter,
           text: a.text,
         })),
         correctKey: q.correctAlternative,
-        imageUrl: q.files?.[0] ?? null,
+        imageUrl: q.files[0] ?? null,
       },
       update: {},
     })
@@ -106,11 +118,11 @@ async function importYear(year: number): Promise<void> {
  * Entry point: fetches all available exam years and imports each one sequentially.
  */
 async function main(): Promise<void> {
-  const exams = (await fetchWithRetry(`${BASE_URL}/exams`)) as {
-    exams: Array<{ year: number }>
-  }
+  const raw = await fetchWithRetry(`${BASE_URL}/exams`)
+  const parsed = examListSchema.safeParse(raw)
+  if (!parsed.success) throw new Error(`Invalid exams list response: ${parsed.error.message}`)
 
-  const years = (exams.exams ?? []).map((e) => e.year).sort()
+  const years = parsed.data.exams.map((e) => e.year).sort()
   console.log(`Found exams for years: ${years.join(", ")}`)
 
   for (const year of years) {
