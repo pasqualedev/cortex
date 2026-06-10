@@ -69,6 +69,8 @@ model Question {
   createdAt    DateTime @default(now())
 
   answers Answer[]
+
+  @@index([area, topic])
 }
 
 model Answer {
@@ -80,8 +82,11 @@ model Answer {
   xpEarned   Int
   answeredAt DateTime @default(now())
 
-  user     User     @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   question Question @relation(fields: [questionId], references: [id])
+
+  @@index([userId])
+  @@index([questionId])
 }
 
 model SkillProgress {
@@ -93,7 +98,8 @@ model SkillProgress {
   total    Int    @default(0)
   correct  Int    @default(0)
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, area, topic])
+  @@index([userId])
 }
