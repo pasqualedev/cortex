@@ -1,3 +1,4 @@
+import Image from "next/image"
 import type { Question } from "@/models/question.model"
 
 type AlternativeVariant = "default" | "correct" | "wrong" | "neutral"
@@ -29,9 +30,11 @@ export function QuestionCard({
     <div className="space-y-4">
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
         {question.imageUrl && (
-          <img
+          <Image
             src={question.imageUrl}
             alt="Imagem da questão"
+            width={700}
+            height={400}
             className="mb-4 w-full rounded"
           />
         )}
