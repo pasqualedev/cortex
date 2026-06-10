@@ -1,24 +1,5 @@
 import { prisma } from "@/lib/prisma"
-
-export interface Alternative {
-  readonly key: string
-  readonly text: string
-}
-
-export interface Question {
-  readonly id: string
-  readonly externalId: string
-  readonly year: number
-  readonly index: number
-  readonly area: string
-  readonly topic: string
-  readonly subtopic: string
-  readonly statement: string
-  readonly alternatives: readonly Alternative[]
-  readonly correctKey: string
-  readonly difficulty: number
-  readonly imageUrl: string | null
-}
+import type { Alternative, Question } from "@/models/question.model"
 
 function mapQuestion(q: {
   id: string
@@ -56,19 +37,31 @@ export async function findQuestionsForChallenge(params: {
   limit: number
 }): Promise<Question[]> {
   const { weakTopics, avoidQuestionIds, limit } = params
+  const excluded = avoidQuestionIds as string[]
 
-  const questions = await prisma.question.findMany({
-    where: {
-      id: { notIn: avoidQuestionIds as string[] },
-    },
-    take: limit * 3,
-  })
+  // First: fill as many slots as possible with weak-topic questions
+  const weakQuestions = weakTopics.length > 0
+    ? await prisma.question.findMany({
+        where: { topic: { in: weakTopics as string[] }, id: { notIn: excluded } },
+        take: limit,
+      })
+    : []
 
-  const weak = questions.filter((q) => weakTopics.includes(q.topic))
-  const others = questions.filter((q) => !weakTopics.includes(q.topic))
-  const pool = [...weak, ...others].slice(0, limit)
+  const remaining = limit - weakQuestions.length
 
-  return pool.map(mapQuestion)
+  // Second: fill remaining slots with any other questions
+  const weakIds = weakQuestions.map((q) => q.id)
+  const otherQuestions = remaining > 0
+    ? await prisma.question.findMany({
+        where: {
+          id: { notIn: [...excluded, ...weakIds] },
+          topic: weakTopics.length > 0 ? { notIn: weakTopics as string[] } : undefined,
+        },
+        take: remaining,
+      })
+    : []
+
+  return [...weakQuestions, ...otherQuestions].map(mapQuestion)
 }
 
 /**
