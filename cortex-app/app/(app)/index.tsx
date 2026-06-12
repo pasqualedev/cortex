@@ -2,28 +2,18 @@ import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { getDashboard } from '../../services/dashboard.service'
-import { getBrainCurrent } from '../../services/progress.service'
 import { useAuthStore } from '../../stores/auth.store'
 import { BrainStatus } from '../../components/brain-status'
 import { SkeletonLoader } from '../../components/ui/SkeletonLoader'
 import { QueryKeys } from '../../lib/query-keys'
 
-/**
- * Home screen — displays greeting, next challenge card, daily goal progress,
- * and the cognitive brain status summary.
- */
 export default function HomeScreen() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
 
-  const { data: dashboard, isLoading: dashLoading } = useQuery({
+  const { data: dashboard, isLoading } = useQuery({
     queryKey: QueryKeys.dashboard,
     queryFn: getDashboard,
-  })
-
-  const { data: brain, isLoading: brainLoading } = useQuery({
-    queryKey: QueryKeys.brainCurrent,
-    queryFn: getBrainCurrent,
   })
 
   return (
@@ -34,24 +24,10 @@ export default function HomeScreen() {
         <Text className="text-zinc-100 text-2xl font-bold">{user?.name ?? '—'}</Text>
       </View>
 
-      {/* Next Challenge Card */}
+      {/* Challenge CTA */}
       <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-3">
         <Text className="text-zinc-500 text-xs uppercase tracking-wide">Próximo Desafio</Text>
-        {dashLoading ? (
-          <View className="gap-2">
-            <SkeletonLoader width="60%" height={18} />
-            <SkeletonLoader width="40%" height={14} />
-          </View>
-        ) : (
-          <View className="gap-1">
-            <Text className="text-zinc-100 font-semibold text-base">
-              {dashboard?.nextChallenge.subject ?? '—'}
-            </Text>
-            <Text className="text-zinc-500 text-sm">
-              {dashboard?.nextChallenge.topic ?? '—'}
-            </Text>
-          </View>
-        )}
+        <Text className="text-zinc-400 text-sm">Continue treinando seu cérebro hoje.</Text>
         <TouchableOpacity
           className="bg-indigo-500 h-12 rounded-xl items-center justify-center"
           onPress={() => router.push('/(app)/desafio')}
@@ -62,36 +38,43 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Daily Goal */}
-      {dashLoading ? (
-        <SkeletonLoader width="100%" height={60} rounded />
+      {/* Weekly Activity */}
+      {isLoading ? (
+        <SkeletonLoader width="100%" height={80} rounded />
       ) : dashboard ? (
-        <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-2">
+        <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-3">
+          <Text className="text-zinc-500 text-xs uppercase tracking-wide">Atividade da Semana</Text>
           <View className="flex-row justify-between">
-            <Text className="text-zinc-400 text-sm">Meta Diária</Text>
-            <Text className="text-zinc-400 text-sm">
-              {dashboard.dailyGoalProgress}/{dashboard.dailyGoalTarget}
-            </Text>
-          </View>
-          <View className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-            <View
-              className="h-full bg-indigo-500 rounded-full"
-              style={{
-                width: `${Math.min(100, (dashboard.dailyGoalProgress / dashboard.dailyGoalTarget) * 100)}%`,
-              }}
-            />
+            <View className="items-center gap-0.5">
+              <Text className="text-zinc-100 font-bold text-lg">
+                {dashboard.recentActivity.questionsThisWeek}
+              </Text>
+              <Text className="text-zinc-500 text-xs">questões</Text>
+            </View>
+            <View className="items-center gap-0.5">
+              <Text className="text-zinc-100 font-bold text-lg">
+                {dashboard.recentActivity.correctThisWeek}
+              </Text>
+              <Text className="text-zinc-500 text-xs">acertos</Text>
+            </View>
+            <View className="items-center gap-0.5">
+              <Text className="text-zinc-100 font-bold text-lg">
+                {dashboard.recentActivity.sessionsThisWeek}
+              </Text>
+              <Text className="text-zinc-500 text-xs">sessões</Text>
+            </View>
           </View>
         </View>
       ) : null}
 
       {/* Brain Status */}
-      {brainLoading ? (
+      {isLoading ? (
         <SkeletonLoader width="100%" height={220} rounded />
-      ) : brain ? (
+      ) : dashboard ? (
         <BrainStatus
-          metrics={brain}
-          streakDays={brain.streakDays}
-          totalXP={brain.totalXP}
+          metrics={dashboard.brainMetrics}
+          streakDays={dashboard.user.streakDays}
+          totalXP={dashboard.user.xp}
         />
       ) : null}
     </ScrollView>
