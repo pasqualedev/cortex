@@ -1,23 +1,47 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
+import { colors, font, spacing, radius } from '../../lib/theme'
 
 interface AttributeBarProps {
   readonly label: string
   readonly value: number  // 0-100
-  readonly color: string  // Tailwind color class e.g. 'bg-indigo-500'
+  readonly color: string  // Hex color value from theme
 }
 
 /** Horizontal progress bar showing a cognitive attribute level. */
 export const AttributeBar = ({ label, value, color }: AttributeBarProps) => (
-  <View className="gap-1">
-    <View className="flex-row justify-between">
-      <Text className="text-zinc-400 text-xs">{label}</Text>
-      <Text className="text-zinc-400 text-xs">{value}</Text>
+  <View style={styles.container}>
+    <View style={styles.labelRow}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label}>{value}</Text>
     </View>
-    <View className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+    <View style={styles.track}>
       <View
-        className={`h-full ${color} rounded-full`}
-        style={{ width: `${value}%` }}
+        style={[styles.fill, { width: `${value}%` as `${number}%`, backgroundColor: color }]}
       />
     </View>
   </View>
 )
+
+const styles = StyleSheet.create({
+  container: {
+    gap: spacing[1],
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  label: {
+    color: colors.text400,
+    fontSize: font.xs,
+  },
+  track: {
+    height: spacing[1.5],
+    backgroundColor: colors.bg800,
+    borderRadius: radius.full,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+    borderRadius: radius.full,
+  },
+})

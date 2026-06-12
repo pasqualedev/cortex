@@ -1,5 +1,6 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { AnswerOption } from './AnswerOption'
+import { colors, font, spacing, radius } from '../../lib/theme'
 import type { OptionState } from './AnswerOption'
 import type { QuestionDTO } from '../../types/domain'
 
@@ -22,12 +23,12 @@ export const QuestionCard = ({ question, selectedKey, correctKey, onSelect }: Qu
   }
 
   return (
-    <View className="gap-4">
-      <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-        <Text className="text-zinc-400 text-xs mb-2">{question.topic.name} • ENEM {question.year}</Text>
-        <Text className="text-zinc-100 text-sm leading-6">{question.statement}</Text>
+    <View style={styles.container}>
+      <View style={styles.statementCard}>
+        <Text style={styles.meta}>{question.topic.name} • ENEM {question.year}</Text>
+        <Text style={styles.statement}>{question.statement}</Text>
       </View>
-      <View className="gap-2">
+      <View style={styles.optionsList}>
         {question.alternatives.map((alt) => (
           <AnswerOption
             key={alt.key}
@@ -42,3 +43,29 @@ export const QuestionCard = ({ question, selectedKey, correctKey, onSelect }: Qu
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: spacing[4],
+  },
+  statementCard: {
+    backgroundColor: colors.bg900,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+  },
+  meta: {
+    color: colors.text400,
+    fontSize: font.xs,
+    marginBottom: spacing[2],
+  },
+  statement: {
+    color: colors.text100,
+    fontSize: font.sm,
+    lineHeight: 24,
+  },
+  optionsList: {
+    gap: spacing[2],
+  },
+})

@@ -1,4 +1,5 @@
-import { TouchableOpacity, Text, View } from 'react-native'
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native'
+import { colors, font, spacing, radius } from '../../lib/theme'
 
 export type OptionState = 'idle' | 'selected' | 'correct' | 'wrong'
 
@@ -10,27 +11,66 @@ interface AnswerOptionProps {
   readonly disabled?: boolean
 }
 
-const STATE_STYLES: Record<OptionState, { container: string; key: string; text: string }> = {
-  idle:     { container: 'border-zinc-800 bg-zinc-900',      key: 'text-zinc-500',  text: 'text-zinc-100' },
-  selected: { container: 'border-indigo-500 bg-indigo-500/10', key: 'text-indigo-400', text: 'text-zinc-100' },
-  correct:  { container: 'border-emerald-500 bg-emerald-500/10', key: 'text-emerald-400', text: 'text-emerald-100' },
-  wrong:    { container: 'border-red-500 bg-red-500/10',     key: 'text-red-400',   text: 'text-red-100' },
+/** Single answer option button with visual state feedback. */
+export const AnswerOption = ({ optionKey, text, state, onPress, disabled = false }: AnswerOptionProps) => (
+  <TouchableOpacity
+    style={[
+      styles.container,
+      containerStateStyles[state],
+      disabled && styles.containerDisabled,
+    ]}
+    onPress={onPress}
+    disabled={disabled}
+    accessibilityRole="radio"
+    accessibilityLabel={`Opção ${optionKey}: ${text}`}
+    accessibilityState={{ checked: state === 'selected' || state === 'correct' }}
+  >
+    <Text style={[styles.keyText, keyStateStyles[state]]}>{optionKey}</Text>
+    <Text style={[styles.optionText, textStateStyles[state]]}>{text}</Text>
+  </TouchableOpacity>
+)
+
+const containerStateStyles: Record<OptionState, ViewStyle> = {
+  idle:     { borderColor: colors.bg800,      backgroundColor: colors.bg900 },
+  selected: { borderColor: colors.indigo500,  backgroundColor: colors.indigo500_10 },
+  correct:  { borderColor: colors.emerald500, backgroundColor: colors.emerald500_10 },
+  wrong:    { borderColor: colors.red500,     backgroundColor: colors.red500_10 },
 }
 
-/** Single answer option button with visual state feedback. */
-export const AnswerOption = ({ optionKey, text, state, onPress, disabled = false }: AnswerOptionProps) => {
-  const styles = STATE_STYLES[state]
-  return (
-    <TouchableOpacity
-      className={`flex-row items-start gap-3 p-4 rounded-xl border ${styles.container} ${disabled ? 'opacity-70' : ''}`}
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="radio"
-      accessibilityLabel={`Opção ${optionKey}: ${text}`}
-      accessibilityState={{ checked: state === 'selected' || state === 'correct' }}
-    >
-      <Text className={`font-bold text-sm w-5 ${styles.key}`}>{optionKey}</Text>
-      <Text className={`flex-1 text-sm leading-5 ${styles.text}`}>{text}</Text>
-    </TouchableOpacity>
-  )
+const keyStateStyles: Record<OptionState, TextStyle> = {
+  idle:     { color: colors.text500 },
+  selected: { color: colors.indigo400 },
+  correct:  { color: colors.emerald400 },
+  wrong:    { color: colors.red400 },
 }
+
+const textStateStyles: Record<OptionState, TextStyle> = {
+  idle:     { color: colors.text100 },
+  selected: { color: colors.text100 },
+  correct:  { color: colors.text100 },
+  wrong:    { color: colors.text100 },
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing[3],
+    padding: spacing[4],
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
+  containerDisabled: {
+    opacity: 0.7,
+  },
+  keyText: {
+    fontWeight: '700',
+    fontSize: font.sm,
+    width: spacing[5],
+  },
+  optionText: {
+    flex: 1,
+    fontSize: font.sm,
+    lineHeight: 20,
+  },
+})

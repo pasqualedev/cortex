@@ -1,7 +1,7 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { AttributeBar } from './AttributeBar'
+import { colors, font, spacing, radius } from '../../lib/theme'
 import type { BrainMetrics } from '../../types/domain'
-import type { DashboardData } from '../../types/domain'
 
 interface AttributeConfig {
   readonly label: string
@@ -10,11 +10,11 @@ interface AttributeConfig {
 }
 
 const ATTRIBUTE_CONFIG: readonly AttributeConfig[] = [
-  { label: 'Energia Neural', color: 'bg-indigo-500', value: (m) => m.energiaNeuralScore },
-  { label: 'Memória',        color: 'bg-violet-500', value: (m) => m.memoriaScore },
-  { label: 'Lógica',         color: 'bg-blue-500',   value: (m) => m.logicaScore },
-  { label: 'Interpretação',  color: 'bg-emerald-500', value: (m) => m.interpretacaoScore },
-  { label: 'Ciências',       color: 'bg-rose-500',   value: (m) => m.cienciasScore },
+  { label: 'Energia Neural', color: colors.indigo500,  value: (m) => m.energiaNeuralScore },
+  { label: 'Memória',        color: colors.violet500,  value: (m) => m.memoriaScore },
+  { label: 'Lógica',         color: colors.blue500,    value: (m) => m.logicaScore },
+  { label: 'Interpretação',  color: colors.emerald500, value: (m) => m.interpretacaoScore },
+  { label: 'Ciências',       color: colors.rose500,    value: (m) => m.cienciasScore },
 ]
 
 interface BrainStatusProps {
@@ -25,22 +25,22 @@ interface BrainStatusProps {
 
 /** Full cognitive status card: streak, XP, overall score, and 5 attribute bars. */
 export const BrainStatus = ({ metrics, streakDays, totalXP }: BrainStatusProps) => (
-  <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-4">
-    <View className="flex-row justify-between items-center">
-      <Text className="text-zinc-100 font-semibold text-base">Status Cognitivo</Text>
-      <Text className="text-indigo-400 text-sm">{metrics.estimatedScore.toFixed(1)} pts</Text>
+  <View style={styles.card}>
+    <View style={styles.header}>
+      <Text style={styles.title}>Status Cognitivo</Text>
+      <Text style={styles.score}>{metrics.estimatedScore.toFixed(1)} pts</Text>
     </View>
-    <View className="flex-row gap-4">
-      <View className="items-center gap-0.5">
-        <Text className="text-zinc-100 font-bold text-lg">{streakDays}</Text>
-        <Text className="text-zinc-500 text-xs">dias seguidos</Text>
+    <View style={styles.statsRow}>
+      <View style={styles.statItem}>
+        <Text style={styles.statValue}>{streakDays}</Text>
+        <Text style={styles.statLabel}>dias seguidos</Text>
       </View>
-      <View className="items-center gap-0.5">
-        <Text className="text-zinc-100 font-bold text-lg">{totalXP}</Text>
-        <Text className="text-zinc-500 text-xs">XP total</Text>
+      <View style={styles.statItem}>
+        <Text style={styles.statValue}>{totalXP}</Text>
+        <Text style={styles.statLabel}>XP total</Text>
       </View>
     </View>
-    <View className="gap-2">
+    <View style={styles.barsContainer}>
       {ATTRIBUTE_CONFIG.map((config) => (
         <AttributeBar
           key={config.label}
@@ -52,3 +52,48 @@ export const BrainStatus = ({ metrics, streakDays, totalXP }: BrainStatusProps) 
     </View>
   </View>
 )
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.bg900,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[4],
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    color: colors.text100,
+    fontWeight: '600',
+    fontSize: font.base,
+  },
+  score: {
+    color: colors.indigo400,
+    fontSize: font.sm,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: spacing[4],
+  },
+  statItem: {
+    alignItems: 'center',
+    gap: spacing[0.5],
+  },
+  statValue: {
+    color: colors.text100,
+    fontWeight: '700',
+    fontSize: font.lg,
+  },
+  statLabel: {
+    color: colors.text500,
+    fontSize: font.xs,
+  },
+  barsContainer: {
+    gap: spacing[2],
+  },
+})

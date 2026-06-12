@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
+import { colors, font, spacing, radius } from '../../lib/theme'
 
 interface SessionProgressProps {
   readonly current: number   // 1-based
@@ -7,15 +8,39 @@ interface SessionProgressProps {
 
 /** Progress bar + counter for the current challenge session. */
 export const SessionProgress = ({ current, total }: SessionProgressProps) => (
-  <View className="gap-2">
-    <View className="flex-row justify-between">
-      <Text className="text-zinc-500 text-sm">Questão {current} de {total}</Text>
+  <View style={styles.container}>
+    <View style={styles.labelRow}>
+      <Text style={styles.label}>Questão {current} de {total}</Text>
     </View>
-    <View className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+    <View style={styles.track}>
       <View
-        className="h-full bg-indigo-500 rounded-full"
-        style={{ width: `${(current / total) * 100}%` }}
+        style={[styles.fill, { width: `${(current / total) * 100}%` as `${number}%` }]}
       />
     </View>
   </View>
 )
+
+const styles = StyleSheet.create({
+  container: {
+    gap: spacing[2],
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  label: {
+    color: colors.text500,
+    fontSize: font.sm,
+  },
+  track: {
+    height: spacing[1.5],
+    backgroundColor: colors.bg800,
+    borderRadius: radius.full,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+    backgroundColor: colors.indigo500,
+    borderRadius: radius.full,
+  },
+})
