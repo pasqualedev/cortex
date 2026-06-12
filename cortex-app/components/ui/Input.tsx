@@ -20,6 +20,7 @@ export const Input = ({ label, error, isPassword = false, ...props }: InputProps
           className={`bg-zinc-900 border rounded-xl px-4 h-14 text-zinc-100 text-base ${error ? 'border-red-500' : 'border-zinc-800'}`}
           placeholderTextColor="#71717a"
           secureTextEntry={isPassword && !visible}
+          accessibilityLabel={label}
           {...props}
         />
         {isPassword && (

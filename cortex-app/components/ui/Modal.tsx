@@ -18,9 +18,9 @@ export const Modal = ({
   cancelLabel = 'Cancelar',
   onConfirm, onCancel,
 }: ModalProps) => (
-  <RNModal visible={visible} transparent animationType="fade">
+  <RNModal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
     <View className="flex-1 bg-black/60 justify-center items-center px-6">
-      <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full gap-4">
+      <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full gap-4" accessibilityViewIsModal>
         <Text className="text-zinc-100 text-lg font-bold">{title}</Text>
         <Text className="text-zinc-400 text-sm">{message}</Text>
         <View className="gap-2">

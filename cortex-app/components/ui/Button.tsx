@@ -12,7 +12,7 @@ interface ButtonProps {
 export const Button = ({ label, onPress, variant = 'primary', loading = false, disabled = false }: ButtonProps) => {
   const variants = {
     primary: 'bg-indigo-500',
-    secondary: 'bg-zinc-800 border border-zinc-700',
+    secondary: 'bg-zinc-800 border border-zinc-800',
     ghost: 'bg-transparent',
   }
   const textVariants = {
