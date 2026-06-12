@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "db:migrate": "prisma migrate deploy",
-    "db:down": "docker compose down",
+    "db:stop": "docker compose stop",
+    "db:down": "docker compose down -v",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "import:enem": "tsx scripts/import-enem.ts"

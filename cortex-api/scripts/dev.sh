@@ -31,4 +31,6 @@ echo "[dev] Running migrations..."
 npx prisma migrate deploy
 
 echo "[dev] Starting server..."
-exec npx tsx watch src/server.ts
+trap "echo '[dev] Stopping database...'; docker compose stop" EXIT
+
+npx tsx watch src/server.ts
