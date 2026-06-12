@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
@@ -8,6 +8,7 @@ import { register } from '../../services/auth.service'
 import { useAuthStore } from '../../stores/auth.store'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
+import { colors, font, spacing } from '../../lib/theme'
 
 const schema = z.object({
   name: z.string().min(2, 'Nome muito curto'),
@@ -33,12 +34,12 @@ export default function RegisterScreen() {
   })
 
   return (
-    <ScrollView className="flex-1 bg-zinc-950" contentContainerClassName="px-6 py-16 gap-8">
-      <View className="gap-1">
-        <Text className="text-zinc-100 text-2xl font-bold">Criar conta</Text>
-        <Text className="text-zinc-500 text-base">Comece sua jornada de evolução.</Text>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.headerGroup}>
+        <Text style={styles.heading}>Criar conta</Text>
+        <Text style={styles.subheading}>Comece sua jornada de evolução.</Text>
       </View>
-      <View className="gap-4">
+      <View style={styles.fieldGroup}>
         <Controller
           control={control}
           name="name"
@@ -81,7 +82,7 @@ export default function RegisterScreen() {
             />
           )}
         />
-        {errors.root && <Text className="text-red-400 text-sm">{errors.root.message}</Text>}
+        {errors.root && <Text style={styles.errorText}>{errors.root.message}</Text>}
       </View>
       <Button
         label="Criar conta"
@@ -89,10 +90,50 @@ export default function RegisterScreen() {
         loading={mutation.isPending}
       />
       <TouchableOpacity onPress={() => router.back()}>
-        <Text className="text-zinc-500 text-sm text-center">
-          Já tem conta? <Text className="text-indigo-500 font-semibold">Entrar</Text>
+        <Text style={styles.linkText}>
+          Já tem conta? <Text style={styles.linkAccent}>Entrar</Text>
         </Text>
       </TouchableOpacity>
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+  },
+  contentContainer: {
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[8] * 2,
+    gap: spacing[8],
+  },
+  headerGroup: {
+    gap: spacing[1],
+  },
+  heading: {
+    color: colors.text100,
+    fontSize: font['2xl'],
+    fontWeight: 'bold',
+  },
+  subheading: {
+    color: colors.text500,
+    fontSize: font.base,
+  },
+  fieldGroup: {
+    gap: spacing[4],
+  },
+  errorText: {
+    color: colors.red400,
+    fontSize: font.sm,
+  },
+  linkText: {
+    color: colors.text500,
+    fontSize: font.sm,
+    textAlign: 'center',
+  },
+  linkAccent: {
+    color: colors.indigo500,
+    fontWeight: '600',
+  },
+})

@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useMutation } from '@tanstack/react-query'
 import { completeOnboarding } from '../../services/user.service'
 import { Button } from '../../components/ui/Button'
+import { colors, font, spacing, radius } from '../../lib/theme'
 
 const TARGET_SCORES = [500, 600, 700, 800, 900] as const
 
 const ATTRIBUTES = [
-  { label: 'Energia Neural',         color: 'text-indigo-400',  emoji: '🧠' },
-  { label: 'Memória de Longo Prazo', color: 'text-violet-400',  emoji: '🔵' },
-  { label: 'Lógica',                 color: 'text-blue-400',    emoji: '⚡' },
-  { label: 'Interpretação',          color: 'text-emerald-400', emoji: '📖' },
-  { label: 'Raciocínio Científico',  color: 'text-rose-400',    emoji: '🔬' },
+  { label: 'Energia Neural',         color: colors.indigo400,  emoji: '🧠' },
+  { label: 'Memória de Longo Prazo', color: '#a78bfa',         emoji: '🔵' },
+  { label: 'Lógica',                 color: '#60a5fa',         emoji: '⚡' },
+  { label: 'Interpretação',          color: colors.emerald400, emoji: '📖' },
+  { label: 'Raciocínio Científico',  color: '#fb7185',         emoji: '🔬' },
 ]
 
 export default function OnboardingScreen() {
@@ -27,22 +28,23 @@ export default function OnboardingScreen() {
     onSuccess: () => router.replace('/(app)'),
   })
 
+  /** Renders 3 dot step indicators, highlighting the current step. */
   const StepIndicator = ({ current }: { current: number }) => (
-    <View className="flex-row gap-2 justify-center">
+    <View style={styles.stepIndicator}>
       {[0, 1, 2].map((i) => (
-        <View key={i} className={`w-2 h-2 rounded-full ${i === current ? 'bg-indigo-500' : 'bg-zinc-700'}`} />
+        <View key={i} style={[styles.dot, i === current ? styles.dotActive : styles.dotInactive]} />
       ))}
     </View>
   )
 
   if (step === 0) return (
-    <View className="flex-1 bg-zinc-950 px-6 justify-center items-center gap-8">
-      <View className="w-full h-48 items-center justify-center">
-        <Text className="text-8xl">🧠</Text>
+    <View style={styles.centeredScreen}>
+      <View style={styles.heroBox}>
+        <Text style={styles.heroEmoji}>🧠</Text>
       </View>
-      <Text className="text-zinc-100 text-2xl font-bold text-center">Seu cérebro está pronto para evoluir</Text>
-      <Text className="text-zinc-400 text-base text-center">Cada questão do ENEM fortalece capacidades reais do seu cérebro.</Text>
-      <View className="w-full gap-4">
+      <Text style={styles.headingCenter}>Seu cérebro está pronto para evoluir</Text>
+      <Text style={styles.subheadingCenter}>Cada questão do ENEM fortalece capacidades reais do seu cérebro.</Text>
+      <View style={styles.bottomGroup}>
         <Button label="Começar" onPress={() => setStep(1)} />
         <StepIndicator current={0} />
       </View>
@@ -50,22 +52,22 @@ export default function OnboardingScreen() {
   )
 
   if (step === 1) return (
-    <ScrollView className="flex-1 bg-zinc-950" contentContainerClassName="px-6 py-16 gap-8">
-      <Text className="text-zinc-100 text-2xl font-bold">Você não está fazendo questões</Text>
-      <Text className="text-zinc-400 text-base">Você está fortalecendo atributos do seu cérebro.</Text>
-      <View className="gap-3">
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer}>
+      <Text style={styles.heading}>Você não está fazendo questões</Text>
+      <Text style={styles.subheading}>Você está fortalecendo atributos do seu cérebro.</Text>
+      <View style={styles.attributeList}>
         {ATTRIBUTES.map((attr) => (
-          <View key={attr.label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex-row items-center gap-3">
-            <Text className="text-xl">{attr.emoji}</Text>
-            <View className="flex-1">
-              <Text className={`font-semibold ${attr.color}`}>{attr.label}</Text>
-              <View className="h-1.5 bg-zinc-800 rounded-full mt-2" />
+          <View key={attr.label} style={styles.attributeCard}>
+            <Text style={styles.attributeEmoji}>{attr.emoji}</Text>
+            <View style={styles.attributeInfo}>
+              <Text style={[styles.attributeLabel, { color: attr.color }]}>{attr.label}</Text>
+              <View style={styles.attributeBar} />
             </View>
-            <Text className="text-zinc-600 text-xs">Bloqueado</Text>
+            <Text style={styles.attributeLocked}>Bloqueado</Text>
           </View>
         ))}
       </View>
-      <View className="gap-4">
+      <View style={styles.bottomGroup}>
         <Button label="Entendi" onPress={() => setStep(2)} />
         <StepIndicator current={1} />
       </View>
@@ -73,27 +75,180 @@ export default function OnboardingScreen() {
   )
 
   return (
-    <View className="flex-1 bg-zinc-950 px-6 py-16 gap-8">
-      <Text className="text-zinc-100 text-2xl font-bold">Qual é a sua meta no ENEM?</Text>
-      <Text className="text-zinc-400 text-base">Calculamos seu progresso em direção a essa nota.</Text>
-      <View className="flex-row flex-wrap gap-3">
+    <View style={styles.screen}>
+      <Text style={styles.heading}>Qual é a sua meta no ENEM?</Text>
+      <Text style={styles.subheading}>Calculamos seu progresso em direção a essa nota.</Text>
+      <View style={styles.scoreGrid}>
         {TARGET_SCORES.map((score, i) => (
           <TouchableOpacity
             key={score}
-            className={`bg-zinc-900 border-2 rounded-xl p-4 items-center justify-center ${i === 4 ? 'w-full' : 'flex-1'} ${selectedScore === score ? 'border-indigo-500 bg-indigo-500/10' : 'border-zinc-800'}`}
+            style={[
+              styles.scoreButton,
+              i === 4 ? styles.scoreButtonFull : styles.scoreButtonFlex,
+              selectedScore === score ? styles.scoreButtonSelected : styles.scoreButtonDefault,
+            ]}
             onPress={() => setSelectedScore(score)}
             accessibilityRole="button"
             accessibilityLabel={`Meta ${score} pontos`}
           >
-            <Text className={`text-lg font-bold ${selectedScore === score ? 'text-indigo-400' : 'text-zinc-100'}`}>
+            <Text style={[styles.scoreText, selectedScore === score ? styles.scoreTextSelected : styles.scoreTextDefault]}>
               {score}{i === 4 ? '+' : ''}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
       <Button label="Continuar" onPress={() => mutation.mutate()} disabled={!selectedScore} loading={mutation.isPending} />
-      <Text className="text-zinc-600 text-xs text-center">Você pode ajustar sua meta depois.</Text>
+      <Text style={styles.hint}>Você pode ajustar sua meta depois.</Text>
       <StepIndicator current={2} />
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[8] * 2,
+    gap: spacing[8],
+  },
+  centeredScreen: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+    paddingHorizontal: spacing[6],
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing[8],
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+  },
+  contentContainer: {
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[8] * 2,
+    gap: spacing[8],
+  },
+  heroBox: {
+    width: '100%',
+    height: 192,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroEmoji: {
+    fontSize: 96,
+  },
+  heading: {
+    color: colors.text100,
+    fontSize: font['2xl'],
+    fontWeight: 'bold',
+  },
+  headingCenter: {
+    color: colors.text100,
+    fontSize: font['2xl'],
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  subheading: {
+    color: colors.text400,
+    fontSize: font.base,
+  },
+  subheadingCenter: {
+    color: colors.text400,
+    fontSize: font.base,
+    textAlign: 'center',
+  },
+  bottomGroup: {
+    width: '100%',
+    gap: spacing[4],
+  },
+  stepIndicator: {
+    flexDirection: 'row',
+    gap: spacing[2],
+    justifyContent: 'center',
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: radius.full,
+  },
+  dotActive: {
+    backgroundColor: colors.indigo500,
+  },
+  dotInactive: {
+    backgroundColor: '#3f3f46',
+  },
+  attributeList: {
+    gap: spacing[3],
+  },
+  attributeCard: {
+    backgroundColor: colors.bg900,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
+  attributeEmoji: {
+    fontSize: font.xl,
+  },
+  attributeInfo: {
+    flex: 1,
+  },
+  attributeLabel: {
+    fontWeight: '600',
+  },
+  attributeBar: {
+    height: 6,
+    backgroundColor: colors.bg800,
+    borderRadius: radius.full,
+    marginTop: spacing[2],
+  },
+  attributeLocked: {
+    color: colors.text600,
+    fontSize: font.xs,
+  },
+  scoreGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing[3],
+  },
+  scoreButton: {
+    backgroundColor: colors.bg900,
+    borderWidth: 2,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scoreButtonFlex: {
+    flex: 1,
+  },
+  scoreButtonFull: {
+    width: '100%',
+  },
+  scoreButtonSelected: {
+    borderColor: colors.indigo500,
+    backgroundColor: colors.indigo500_10,
+  },
+  scoreButtonDefault: {
+    borderColor: colors.bg800,
+  },
+  scoreText: {
+    fontSize: font.lg,
+    fontWeight: 'bold',
+  },
+  scoreTextSelected: {
+    color: colors.indigo400,
+  },
+  scoreTextDefault: {
+    color: colors.text100,
+  },
+  hint: {
+    color: colors.text600,
+    fontSize: font.xs,
+    textAlign: 'center',
+  },
+})

@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
-import { View, Text, Animated } from 'react-native'
+import { View, Text, Animated, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { getMe } from '../../services/user.service'
 import { useAuthStore } from '../../stores/auth.store'
 import { STORAGE_KEYS } from '../../lib/storage-keys'
+import { colors, font } from '../../lib/theme'
 
 export default function SplashScreen() {
   const router = useRouter()
@@ -39,21 +40,51 @@ export default function SplashScreen() {
   }, [])
 
   return (
-    <View className="flex-1 bg-zinc-950 items-center justify-center gap-3">
+    <View style={styles.container}>
       <Animated.View style={{ opacity: logoOpacity }}>
-        <View className="w-16 h-16 items-center justify-center">
-          <Text className="text-indigo-500 text-5xl font-bold">C</Text>
+        <View style={styles.logoBox}>
+          <Text style={styles.logoText}>C</Text>
         </View>
       </Animated.View>
       <Animated.Text
-        style={{ opacity: titleOpacity, transform: [{ translateY: titleTranslate }] }}
-        className="text-zinc-100 text-2xl font-bold tracking-widest"
+        style={[styles.title, { opacity: titleOpacity, transform: [{ translateY: titleTranslate }] }]}
       >
         CORTEX
       </Animated.Text>
-      <Animated.Text style={{ opacity: taglineOpacity }} className="text-zinc-500 text-sm">
+      <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
         Fortaleça seu cérebro
       </Animated.Text>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  logoBox: {
+    width: 64,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoText: {
+    color: colors.indigo500,
+    fontSize: font['5xl'],
+    fontWeight: 'bold',
+  },
+  title: {
+    color: colors.text100,
+    fontSize: font['2xl'],
+    fontWeight: 'bold',
+    letterSpacing: 6,
+  },
+  tagline: {
+    color: colors.text500,
+    fontSize: font.sm,
+  },
+})
