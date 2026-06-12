@@ -22,17 +22,21 @@ export default function ChallengeScreen() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [result, setResult] = useState<AttemptResult | null>(null)
   const [showExitModal, setShowExitModal] = useState(false)
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
 
   const { data: session, isLoading } = useQuery({
     queryKey: QueryKeys.challengeNext,
-    queryFn: getNextChallenge,
+    queryFn: () => getNextChallenge(),
     staleTime: Infinity, // don't refetch mid-session
   })
 
   const submitMutation = useMutation({
     mutationFn: ({ questionId, key }: { questionId: string; key: string }) =>
-      submitAnswer(session!.challengeId, questionId, key),
-    onSuccess: (attemptResult) => setResult(attemptResult),
+      submitAnswer({ challengeId: session!.challengeId, questionId, chosenKey: key, consecutiveCorrect }),
+    onSuccess: (attemptResult) => {
+      setResult(attemptResult)
+      setConsecutiveCorrect((c) => (attemptResult.isCorrect ? c + 1 : 0))
+    },
   })
 
   const completeMutation = useMutation({
