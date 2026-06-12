@@ -4,15 +4,15 @@ import { config } from '../config'
 /** Signs an access token for the given userId. Expires per JWT_ACCESS_EXPIRES_IN. */
 export function signAccessToken(userId: string): string {
   return jwt.sign({ sub: userId }, config.JWT_ACCESS_SECRET, {
-    expiresIn: config.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions['expiresIn'],
-  })
+    expiresIn: config.JWT_ACCESS_EXPIRES_IN,
+  } as jwt.SignOptions)
 }
 
 /** Signs a refresh token for the given userId. Expires per JWT_REFRESH_EXPIRES_IN. */
 export function signRefreshToken(userId: string): string {
   return jwt.sign({ sub: userId }, config.JWT_REFRESH_SECRET, {
-    expiresIn: config.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn'],
-  })
+    expiresIn: config.JWT_REFRESH_EXPIRES_IN,
+  } as jwt.SignOptions)
 }
 
 /** Verifies an access token. Returns userId string or null if invalid/expired. */
