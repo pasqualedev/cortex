@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ChallengeStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+
+enum CognitiveAttribute {
+  ENERGIA_NEURAL
+  MEMORIA
+  LOGICA
+  INTERPRETACAO
+  CIENCIAS
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  image         String?
+  passwordHash  String?
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  streakDays    Int       @default(0)
+  lastStudiedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  goal             Goal?
+  brainMetrics     BrainMetrics?
+  brainSnapshots   BrainSnapshot[]
+  challenges       Challenge[]
+  attempts         Attempt[]
+  userAchievements UserAchievement[]
+  accounts         Account[]
+
+  @@index([email])
+  @@index([streakDays])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  targetScore Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Topic {
+  id                 String             @id @default(cuid())
+  name               String
+  slug               String             @unique
+  description        String?
+  cognitiveAttribute CognitiveAttribute
+
+  subTopics SubTopic[]
+  questions Question[]
+}
+
+model SubTopic {
+  id      String @id @default(cuid())
+  topicId String
+  name    String
+  slug    String
+
+  topic     Topic      @relation(fields: [topicId], references: [id])
+  questions Question[]
+
+  @@unique([topicId, slug])
+  @@index([topicId])
+}
+
+model Question {
+  id           String   @id @default(cuid())
+  externalId   String?  @unique
+  year         Int
+  index        Int
+  topicId      String
+  subTopicId   String?
+  statement    String   @db.Text
+  alternatives Json
+  correctKey   String   @db.Char(1)
+  difficulty   Int      @default(3)
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+
+  topic              Topic               @relation(fields: [topicId], references: [id])
+  subTopic           SubTopic?           @relation(fields: [subTopicId], references: [id])
+  attempts           Attempt[]
+  challengeQuestions ChallengeQuestion[]
+
+  @@index([topicId])
+  @@index([year])
+  @@index([difficulty])
+  @@index([topicId, difficulty])
+}
+
+model Challenge {
+  id             String          @id @default(cuid())
+  userId         String
+  status         ChallengeStatus @default(ACTIVE)
+  totalXP        Int             @default(0)
+  totalCorrect   Int             @default(0)
+  totalQuestions Int             @default(10)
+  startedAt      DateTime        @default(now())
+  completedAt    DateTime?
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attempts           Attempt[]
+  challengeQuestions ChallengeQuestion[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([completedAt])
+}
+
+model ChallengeQuestion {
+  id          String @id @default(cuid())
+  challengeId String
+  questionId  String
+  position    Int
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  question  Question  @relation(fields: [questionId], references: [id])
+
+  @@unique([challengeId, position])
+  @@unique([challengeId, questionId])
+  @@index([challengeId])
+}
+
+model Attempt {
+  id              String   @id @default(cuid())
+  userId          String
+  questionId      String
+  challengeId     String
+  chosenKey       String   @db.Char(1)
+  isCorrect       Boolean
+  xpEarned        Int
+  cognitiveImpact Json
+  answeredAt      DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question  Question  @relation(fields: [questionId], references: [id])
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, answeredAt])
+  @@index([challengeId])
+  @@index([questionId])
+}
+
+model BrainMetrics {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  energiaNeuralScore Float    @default(0)
+  memoriaScore       Float    @default(0)
+  logicaScore        Float    @default(0)
+  interpretacaoScore Float    @default(0)
+  cienciasScore      Float    @default(0)
+  estimatedScore     Float    @default(0)
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BrainSnapshot {
+  id                 String   @id @default(cuid())
+  userId             String
+  energiaNeuralScore Float
+  memoriaScore       Float
+  logicaScore        Float
+  interpretacaoScore Float
+  cienciasScore      Float
+  estimatedScore     Float
+  recordedAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  type        String
+  threshold   Int
+  createdAt   DateTime @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
