@@ -35,8 +35,8 @@ export function calculateStreakUpdate(input: StreakInput): StreakResult {
     return { streakDays: currentStreakDays, lastStudiedAt: now, streakReset: false }
   }
 
-  const msSinceLastStudy = now.getTime() - lastStudiedAt.getTime()
-  if (msSinceLastStudy > ONE_DAY_MS) {
+  const daysDiff = Math.floor((now.getTime() - lastStudiedAt.getTime()) / ONE_DAY_MS)
+  if (daysDiff > 1) {
     return { streakDays: 1, lastStudiedAt: now, streakReset: true }
   }
 

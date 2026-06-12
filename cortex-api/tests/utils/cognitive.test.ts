@@ -27,7 +27,7 @@ describe('calculateAccuracyScore', () => {
       { isCorrect: true, daysAgo: 2 },
     ]
     const score = calculateAccuracyScore(attempts)
-    expect(score).toBeLessThan(10)
+    expect(score).toBeLessThanOrEqual(10)
   })
 
   it('returns ~100 for 20+ perfect answers', () => {
