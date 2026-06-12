@@ -1,5 +1,6 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import type { AchievementsResponse } from '../../types/domain'
+import { colors, spacing, font, radius } from '../../lib/theme'
 
 interface AchievementGridProps {
   readonly data: AchievementsResponse
@@ -7,23 +8,74 @@ interface AchievementGridProps {
 
 /** Grid of unlocked achievements + locked achievements with progress. */
 export const AchievementGrid = ({ data }: AchievementGridProps) => (
-  <View className="gap-3">
-    <Text className="text-zinc-100 font-semibold text-base">Conquistas</Text>
-    <View className="flex-row flex-wrap gap-2">
+  <View style={styles.container}>
+    <Text style={styles.heading}>Conquistas</Text>
+    <View style={styles.grid}>
       {data.unlocked.map((a) => (
-        <View key={a.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 items-center gap-1 w-[30%]">
-          <Text className="text-2xl">{a.icon}</Text>
-          <Text className="text-zinc-100 text-xs text-center font-medium">{a.name}</Text>
-          <Text className="text-emerald-400 text-xs">Desbloqueada</Text>
+        <View key={a.id} style={styles.card}>
+          <Text style={styles.icon}>{a.icon}</Text>
+          <Text style={styles.cardName}>{a.name}</Text>
+          <Text style={styles.unlockedBadge}>Desbloqueada</Text>
         </View>
       ))}
       {data.locked.map((a) => (
-        <View key={a.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 items-center gap-1 w-[30%] opacity-50">
-          <Text className="text-2xl grayscale">{a.icon}</Text>
-          <Text className="text-zinc-400 text-xs text-center">{a.name}</Text>
-          <Text className="text-zinc-600 text-xs">{a.progress}/{a.threshold}</Text>
+        <View key={a.id} style={[styles.card, styles.cardLocked]}>
+          <Text style={styles.icon}>{a.icon}</Text>
+          <Text style={styles.cardNameLocked}>{a.name}</Text>
+          <Text style={styles.lockedProgress}>{a.progress}/{a.threshold}</Text>
         </View>
       ))}
     </View>
   </View>
 )
+
+const styles = StyleSheet.create({
+  container: {
+    gap: spacing[3],
+  },
+  heading: {
+    color: colors.text100,
+    fontWeight: '600',
+    fontSize: font.base,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing[2],
+  },
+  card: {
+    backgroundColor: colors.bg900,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+    borderRadius: radius.md,
+    padding: spacing[3],
+    alignItems: 'center',
+    gap: spacing[1],
+    width: '30%',
+  },
+  cardLocked: {
+    opacity: 0.5,
+  },
+  icon: {
+    fontSize: font['2xl'],
+  },
+  cardName: {
+    color: colors.text100,
+    fontSize: font.xs,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  cardNameLocked: {
+    color: colors.text400,
+    fontSize: font.xs,
+    textAlign: 'center',
+  },
+  unlockedBadge: {
+    color: colors.emerald400,
+    fontSize: font.xs,
+  },
+  lockedProgress: {
+    color: colors.text600,
+    fontSize: font.xs,
+  },
+})

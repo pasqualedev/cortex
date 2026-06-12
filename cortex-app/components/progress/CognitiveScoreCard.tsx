@@ -1,5 +1,6 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import type { BrainMetrics } from '../../types/domain'
+import { colors, spacing, font, radius } from '../../lib/theme'
 
 interface CognitiveScoreCardProps {
   readonly metrics: BrainMetrics
@@ -15,18 +16,60 @@ const SCORE_ROWS: readonly { label: string; key: keyof BrainMetrics }[] = [
 
 /** Card showing estimated ENEM score and per-attribute cognitive scores. */
 export const CognitiveScoreCard = ({ metrics }: CognitiveScoreCardProps) => (
-  <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-4">
-    <View className="items-center gap-1">
-      <Text className="text-zinc-500 text-xs uppercase tracking-wide">Nota Estimada ENEM</Text>
-      <Text className="text-indigo-400 text-4xl font-bold">{metrics.estimatedScore.toFixed(0)}</Text>
+  <View style={styles.card}>
+    <View style={styles.scoreHeader}>
+      <Text style={styles.scoreLabel}>Nota Estimada ENEM</Text>
+      <Text style={styles.scoreValue}>{metrics.estimatedScore.toFixed(0)}</Text>
     </View>
-    <View className="gap-2">
+    <View style={styles.rowsContainer}>
       {SCORE_ROWS.map(({ label, key }) => (
-        <View key={key} className="flex-row justify-between">
-          <Text className="text-zinc-400 text-sm">{label}</Text>
-          <Text className="text-zinc-100 text-sm font-semibold">{(metrics[key] as number).toFixed(1)}</Text>
+        <View key={key} style={styles.scoreRow}>
+          <Text style={styles.rowLabel}>{label}</Text>
+          <Text style={styles.rowValue}>{(metrics[key] as number).toFixed(1)}</Text>
         </View>
       ))}
     </View>
   </View>
 )
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.bg900,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[4],
+  },
+  scoreHeader: {
+    alignItems: 'center',
+    gap: spacing[1],
+  },
+  scoreLabel: {
+    color: colors.text500,
+    fontSize: font.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  scoreValue: {
+    color: colors.indigo400,
+    fontSize: 36,
+    fontWeight: 'bold',
+  },
+  rowsContainer: {
+    gap: spacing[2],
+  },
+  scoreRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  rowLabel: {
+    color: colors.text400,
+    fontSize: font.sm,
+  },
+  rowValue: {
+    color: colors.text100,
+    fontSize: font.sm,
+    fontWeight: '600',
+  },
+})

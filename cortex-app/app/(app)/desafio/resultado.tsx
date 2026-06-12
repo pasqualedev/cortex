@@ -1,6 +1,7 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { Button } from '../../../components/ui/Button'
+import { colors, spacing, font } from '../../../lib/theme'
 
 /**
  * ResultadoScreen — post-challenge results screen.
@@ -11,11 +12,11 @@ export default function ResultadoScreen() {
   const router = useRouter()
 
   return (
-    <ScrollView className="flex-1 bg-zinc-950" contentContainerClassName="px-4 py-8 gap-6 items-center">
-      <View className="items-center gap-2">
-        <Text className="text-5xl">🧠</Text>
-        <Text className="text-zinc-100 text-2xl font-bold">Desafio Concluído!</Text>
-        <Text className="text-zinc-500 text-sm text-center">
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <View style={styles.header}>
+        <Text style={styles.emoji}>🧠</Text>
+        <Text style={styles.title}>Desafio Concluído!</Text>
+        <Text style={styles.subtitle}>
           Continue praticando para fortalecer seu cérebro.
         </Text>
       </View>
@@ -32,3 +33,33 @@ export default function ResultadoScreen() {
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+  },
+  content: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[8],
+    gap: spacing[6],
+    alignItems: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    gap: spacing[2],
+  },
+  emoji: {
+    fontSize: 48,
+  },
+  title: {
+    color: colors.text100,
+    fontSize: font['2xl'],
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    color: colors.text500,
+    fontSize: font.sm,
+    textAlign: 'center',
+  },
+})
