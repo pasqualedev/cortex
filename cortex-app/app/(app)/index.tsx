@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { getDashboard } from '../../services/dashboard.service'
@@ -6,6 +6,7 @@ import { useAuthStore } from '../../stores/auth.store'
 import { BrainStatus } from '../../components/brain-status'
 import { SkeletonLoader } from '../../components/ui/SkeletonLoader'
 import { QueryKeys } from '../../lib/query-keys'
+import { colors, radius, spacing, font } from '../../lib/theme'
 
 export default function HomeScreen() {
   const router = useRouter()
@@ -17,24 +18,24 @@ export default function HomeScreen() {
   })
 
   return (
-    <ScrollView className="flex-1 bg-zinc-950" contentContainerClassName="px-4 py-6 gap-6">
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
       {/* Greeting */}
-      <View className="gap-1">
-        <Text className="text-zinc-500 text-sm">Olá,</Text>
-        <Text className="text-zinc-100 text-2xl font-bold">{user?.name ?? '—'}</Text>
+      <View style={styles.greetingContainer}>
+        <Text style={styles.greetingLabel}>Olá,</Text>
+        <Text style={styles.greetingName}>{user?.name ?? '—'}</Text>
       </View>
 
       {/* Challenge CTA */}
-      <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-3">
-        <Text className="text-zinc-500 text-xs uppercase tracking-wide">Próximo Desafio</Text>
-        <Text className="text-zinc-400 text-sm">Continue treinando seu cérebro hoje.</Text>
+      <View style={styles.card}>
+        <Text style={styles.cardLabel}>Próximo Desafio</Text>
+        <Text style={styles.cardSubtext}>Continue treinando seu cérebro hoje.</Text>
         <TouchableOpacity
-          className="bg-indigo-500 h-12 rounded-xl items-center justify-center"
+          style={styles.ctaButton}
           onPress={() => router.push('/(app)/desafio')}
           accessibilityRole="button"
           accessibilityLabel="Iniciar desafio"
         >
-          <Text className="text-white font-bold text-base">Iniciar Desafio</Text>
+          <Text style={styles.ctaButtonText}>Iniciar Desafio</Text>
         </TouchableOpacity>
       </View>
 
@@ -42,26 +43,26 @@ export default function HomeScreen() {
       {isLoading ? (
         <SkeletonLoader width="100%" height={80} rounded />
       ) : dashboard ? (
-        <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 gap-3">
-          <Text className="text-zinc-500 text-xs uppercase tracking-wide">Atividade da Semana</Text>
-          <View className="flex-row justify-between">
-            <View className="items-center gap-0.5">
-              <Text className="text-zinc-100 font-bold text-lg">
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>Atividade da Semana</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>
                 {dashboard.recentActivity.questionsThisWeek}
               </Text>
-              <Text className="text-zinc-500 text-xs">questões</Text>
+              <Text style={styles.statUnit}>questões</Text>
             </View>
-            <View className="items-center gap-0.5">
-              <Text className="text-zinc-100 font-bold text-lg">
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>
                 {dashboard.recentActivity.correctThisWeek}
               </Text>
-              <Text className="text-zinc-500 text-xs">acertos</Text>
+              <Text style={styles.statUnit}>acertos</Text>
             </View>
-            <View className="items-center gap-0.5">
-              <Text className="text-zinc-100 font-bold text-lg">
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>
                 {dashboard.recentActivity.sessionsThisWeek}
               </Text>
-              <Text className="text-zinc-500 text-xs">sessões</Text>
+              <Text style={styles.statUnit}>sessões</Text>
             </View>
           </View>
         </View>
@@ -80,3 +81,74 @@ export default function HomeScreen() {
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[6],
+    gap: spacing[6],
+  },
+  greetingContainer: {
+    gap: spacing[1],
+  },
+  greetingLabel: {
+    color: colors.text500,
+    fontSize: font.sm,
+  },
+  greetingName: {
+    color: colors.text100,
+    fontSize: font['2xl'],
+    fontWeight: 'bold',
+  },
+  card: {
+    backgroundColor: colors.bg900,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[3],
+  },
+  cardLabel: {
+    color: colors.text500,
+    fontSize: font.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  cardSubtext: {
+    color: colors.text400,
+    fontSize: font.sm,
+  },
+  ctaButton: {
+    backgroundColor: colors.indigo500,
+    height: 48,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ctaButtonText: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: font.base,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  statItem: {
+    alignItems: 'center',
+    gap: spacing[0.5],
+  },
+  statValue: {
+    color: colors.text100,
+    fontWeight: 'bold',
+    fontSize: font.lg,
+  },
+  statUnit: {
+    color: colors.text500,
+    fontSize: font.xs,
+  },
+})

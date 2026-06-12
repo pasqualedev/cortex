@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, ScrollView, SafeAreaView, TouchableOpacity, Text } from 'react-native'
+import { View, ScrollView, SafeAreaView, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNextChallenge, submitAnswer, completeChallenge } from '../../../services/challenge.service'
@@ -7,6 +7,7 @@ import { SessionProgress, QuestionCard, FeedbackOverlay } from '../../../compone
 import { SkeletonLoader } from '../../../components/ui/SkeletonLoader'
 import { Modal } from '../../../components/ui/Modal'
 import { QueryKeys } from '../../../lib/query-keys'
+import { colors, radius, spacing, font } from '../../../lib/theme'
 import type { AttemptResult } from '../../../types/domain'
 
 /**
@@ -76,7 +77,7 @@ export default function ChallengeScreen() {
 
   if (isLoading || !session) {
     return (
-      <View className="flex-1 bg-zinc-950 px-4 py-6 gap-4">
+      <View style={styles.loadingContainer}>
         <SkeletonLoader width="100%" height={20} />
         <SkeletonLoader width="100%" height={160} rounded />
         <SkeletonLoader width="100%" height={56} rounded />
@@ -89,19 +90,19 @@ export default function ChallengeScreen() {
   const question = session.questions[currentIndex]
 
   return (
-    <SafeAreaView className="flex-1 bg-zinc-950">
-      <View className="px-4 pt-4 gap-3">
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
         <TouchableOpacity
           onPress={() => setShowExitModal(true)}
-          className="self-start"
+          style={styles.exitButton}
           accessibilityRole="button"
           accessibilityLabel="Sair do desafio"
         >
-          <Text className="text-zinc-500 text-sm">✕ Sair</Text>
+          <Text style={styles.exitButtonText}>✕ Sair</Text>
         </TouchableOpacity>
         <SessionProgress current={currentIndex + 1} total={session.questions.length} />
       </View>
-      <ScrollView className="flex-1 px-4 py-4" contentContainerClassName="gap-4">
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <QuestionCard
           question={question}
           selectedKey={selectedKey}
@@ -128,3 +129,37 @@ export default function ChallengeScreen() {
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[6],
+    gap: spacing[4],
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.bg950,
+  },
+  header: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[4],
+    gap: spacing[3],
+  },
+  exitButton: {
+    alignSelf: 'flex-start',
+  },
+  exitButtonText: {
+    color: colors.text500,
+    fontSize: font.sm,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[4],
+  },
+  scrollContent: {
+    gap: spacing[4],
+  },
+})
