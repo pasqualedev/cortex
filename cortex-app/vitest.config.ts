@@ -8,7 +8,7 @@ export default defineConfig({
       {
         test: {
           name: 'lib',
-          include: ['tests/lib/**/*.test.ts'],
+          include: ['tests/lib/**/*.test.ts', 'tests/stores/**/*.test.ts', 'tests/services/**/*.test.ts'],
           environment: 'node',
           globals: true,
         },
@@ -16,8 +16,7 @@ export default defineConfig({
       {
         test: {
           name: 'components',
-          include: ['tests/**/*.test.{ts,tsx}'],
-          exclude: ['tests/lib/**/*.test.ts'],
+          include: ['tests/components/**/*.test.{ts,tsx}'],
           environment: 'node',
           globals: true,
           setupFiles: ['./tests/setup.ts'],

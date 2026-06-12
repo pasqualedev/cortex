@@ -7,7 +7,7 @@ vi.mock('expo-secure-store', () => ({
 }))
 
 vi.mock('../../stores/auth.store', () => ({
-  useAuthStore: { getState: vi.fn(() => ({ clearAuth: vi.fn() })) },
+  useAuthStore: { getState: vi.fn(() => ({ clearAuth: vi.fn().mockResolvedValue(undefined) })) },
 }))
 
 vi.mock('../../lib/api', () => ({
