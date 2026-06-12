@@ -1,4 +1,5 @@
-import { TouchableOpacity, Text, ActivityIndicator } from 'react-native'
+import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native'
+import { colors, radius, spacing, font } from '../../lib/theme'
 
 interface ButtonProps {
   readonly label: string
@@ -8,32 +9,83 @@ interface ButtonProps {
   readonly disabled?: boolean
 }
 
-/** Reusable button following the Cortex design system. */
+/**
+ * Pressable button supporting primary, secondary, and ghost variants.
+ * @param label - Accessible button label and visible text.
+ * @param onPress - Callback fired on press.
+ * @param variant - Visual variant; defaults to 'primary'.
+ * @param loading - When true renders an ActivityIndicator instead of the label.
+ * @param disabled - Disables interaction and reduces opacity.
+ */
 export const Button = ({ label, onPress, variant = 'primary', loading = false, disabled = false }: ButtonProps) => {
-  const variants = {
-    primary: 'bg-indigo-500',
-    secondary: 'bg-zinc-800 border border-zinc-800',
-    ghost: 'bg-transparent',
-  }
-  const textVariants = {
-    primary: 'text-white font-bold text-base',
-    secondary: 'text-zinc-100 font-semibold text-base',
-    ghost: 'text-zinc-400 text-base',
-  }
+  const isDisabledOrLoading = disabled || loading
 
   return (
     <TouchableOpacity
-      className={`h-14 w-full rounded-xl items-center justify-center ${variants[variant]} ${disabled || loading ? 'opacity-50' : ''}`}
+      style={[
+        styles.base,
+        variant === 'primary' && styles.variantPrimary,
+        variant === 'secondary' && styles.variantSecondary,
+        variant === 'ghost' && styles.variantGhost,
+        isDisabledOrLoading && styles.disabled,
+      ]}
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={isDisabledOrLoading}
       accessibilityRole="button"
       accessibilityLabel={label}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : '#6366f1'} />
+        <ActivityIndicator color={variant === 'primary' ? colors.white : colors.indigo500} />
       ) : (
-        <Text className={textVariants[variant]}>{label}</Text>
+        <Text
+          style={[
+            styles.text,
+            variant === 'primary' && styles.textPrimary,
+            variant === 'secondary' && styles.textSecondary,
+            variant === 'ghost' && styles.textGhost,
+          ]}
+        >
+          {label}
+        </Text>
       )}
     </TouchableOpacity>
   )
 }
+
+const styles = StyleSheet.create({
+  base: {
+    height: spacing[14],
+    width: '100%',
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  variantPrimary: {
+    backgroundColor: colors.indigo500,
+  },
+  variantSecondary: {
+    backgroundColor: colors.bg800,
+    borderWidth: 1,
+    borderColor: colors.bg800,
+  },
+  variantGhost: {
+    backgroundColor: 'transparent',
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  text: {
+    fontSize: font.base,
+  },
+  textPrimary: {
+    color: colors.white,
+    fontWeight: 'bold',
+  },
+  textSecondary: {
+    color: colors.text100,
+    fontWeight: '600',
+  },
+  textGhost: {
+    color: colors.text400,
+  },
+})

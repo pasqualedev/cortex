@@ -1,23 +1,43 @@
-import { View, Text } from 'react-native'
+import { View, Text, ViewStyle, TextStyle, StyleSheet } from 'react-native'
+import { colors, radius, spacing, font } from '../../lib/theme'
 
 interface BadgeProps {
   readonly label: string
   readonly color?: 'indigo' | 'zinc' | 'emerald' | 'rose'
 }
 
-const colorMap: Record<NonNullable<BadgeProps['color']>, { bg: string; text: string }> = {
-  indigo:  { bg: 'bg-indigo-500/20',  text: 'text-indigo-400'  },
-  zinc:    { bg: 'bg-zinc-800',        text: 'text-zinc-400'    },
-  emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-400' },
-  rose:    { bg: 'bg-rose-500/20',    text: 'text-rose-400'    },
+type ColorKey = NonNullable<BadgeProps['color']>
+
+const bgStyles: Record<ColorKey, ViewStyle> = {
+  indigo:  { backgroundColor: colors.indigo500_20 },
+  zinc:    { backgroundColor: colors.bg800 },
+  emerald: { backgroundColor: colors.emerald500_10 },
+  rose:    { backgroundColor: colors.red500_10 },
+}
+
+const textStyles: Record<ColorKey, TextStyle> = {
+  indigo:  { color: colors.indigo400 },
+  zinc:    { color: colors.text400 },
+  emerald: { color: colors.emerald400 },
+  rose:    { color: colors.red400 },
 }
 
 /** Small label badge. */
-export const Badge = ({ label, color = 'zinc' }: BadgeProps) => {
-  const { bg, text } = colorMap[color]
-  return (
-    <View className={`px-2 py-0.5 rounded-full ${bg}`}>
-      <Text className={`text-xs font-medium ${text}`}>{label}</Text>
-    </View>
-  )
-}
+export const Badge = ({ label, color = 'zinc' }: BadgeProps) => (
+  <View style={[styles.base, bgStyles[color]]}>
+    <Text style={[styles.text, textStyles[color]]}>{label}</Text>
+  </View>
+)
+
+const styles = StyleSheet.create({
+  base: {
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[0.5],
+    borderRadius: radius.full,
+    alignSelf: 'flex-start',
+  },
+  text: {
+    fontSize: font.xs,
+    fontWeight: '500',
+  },
+})
