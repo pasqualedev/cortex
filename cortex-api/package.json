@@ -12,7 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "import:enem": "tsx scripts/import-enem.ts"
   },
   "keywords": [],
   "author": "",
