@@ -1,8 +1,7 @@
 import { View, Text, ScrollView } from 'react-native'
 import { AnswerOption } from './AnswerOption'
+import type { OptionState } from './AnswerOption'
 import type { QuestionDTO } from '../../types/domain'
-
-type OptionState = 'idle' | 'selected' | 'correct' | 'wrong'
 
 interface QuestionCardProps {
   readonly question: QuestionDTO

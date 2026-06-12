@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, ScrollView, SafeAreaView } from 'react-native'
+import { View, ScrollView, SafeAreaView, TouchableOpacity, Text } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNextChallenge, submitAnswer, completeChallenge } from '../../../services/challenge.service'
@@ -86,7 +86,15 @@ export default function ChallengeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-zinc-950">
-      <View className="px-4 pt-4">
+      <View className="px-4 pt-4 gap-3">
+        <TouchableOpacity
+          onPress={() => setShowExitModal(true)}
+          className="self-start"
+          accessibilityRole="button"
+          accessibilityLabel="Sair do desafio"
+        >
+          <Text className="text-zinc-500 text-sm">✕ Sair</Text>
+        </TouchableOpacity>
         <SessionProgress current={currentIndex + 1} total={session.questions.length} />
       </View>
       <ScrollView className="flex-1 px-4 py-4" contentContainerClassName="gap-4">

@@ -1,6 +1,6 @@
 import { TouchableOpacity, Text, View } from 'react-native'
 
-type OptionState = 'idle' | 'selected' | 'correct' | 'wrong'
+export type OptionState = 'idle' | 'selected' | 'correct' | 'wrong'
 
 interface AnswerOptionProps {
   readonly optionKey: string
