@@ -1,65 +1,64 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Button } from '../../../components/ui/Button'
-import { colors, spacing, font } from '../../../lib/theme'
+import { useState } from 'react'
+import { useResultStore } from '../../../stores/result.store'
+import { StepCelebration } from '../../../components/resultado/StepCelebration'
+import { StepScoreXP } from '../../../components/resultado/StepScoreXP'
+import { StepStreak } from '../../../components/resultado/StepStreak'
+import { colors } from '../../../lib/theme'
+
+type Step = 1 | 2 | 3
 
 /**
- * ResultadoScreen — post-challenge results screen.
- * Shown after a challenge session is completed. Provides navigation
- * back to home or to start a new challenge.
+ * ResultadoScreen — 3-step animated post-challenge celebration.
+ * Step 1: confetti + celebration. Step 2: score/XP bars. Step 3: streak.
+ * Session data comes from resultStore, populated before navigation.
  */
 export default function ResultadoScreen() {
   const router = useRouter()
+  const [step, setStep] = useState<Step>(1)
+  const { xpEarned, correctCount, totalCount, maxCombo, streakDays, reset } =
+    useResultStore()
+
+  const handleHome = () => {
+    reset()
+    router.replace('/(app)')
+  }
+
+  const handleNewChallenge = () => {
+    reset()
+    router.replace('/(app)/desafio')
+  }
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.emoji}>🧠</Text>
-        <Text style={styles.title}>Desafio Concluído!</Text>
-        <Text style={styles.subtitle}>
-          Continue praticando para fortalecer seu cérebro.
-        </Text>
-      </View>
-      <Button
-        label="Voltar para Home"
-        onPress={() => router.replace('/(app)')}
-        variant="primary"
-      />
-      <Button
-        label="Novo Desafio"
-        onPress={() => router.replace('/(app)/desafio')}
-        variant="secondary"
-      />
-    </ScrollView>
+    <View style={styles.container}>
+      {step === 1 ? (
+        <StepCelebration
+          totalCount={totalCount}
+          onAdvance={() => setStep(2)}
+        />
+      ) : step === 2 ? (
+        <StepScoreXP
+          xpEarned={xpEarned}
+          correctCount={correctCount}
+          totalCount={totalCount}
+          maxCombo={maxCombo}
+          onAdvance={() => setStep(3)}
+        />
+      ) : (
+        <StepStreak
+          streakDays={streakDays}
+          onHome={handleHome}
+          onNewChallenge={handleNewChallenge}
+        />
+      )}
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  scroll: {
+  container: {
     flex: 1,
     backgroundColor: colors.bg950,
-  },
-  content: {
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[8],
-    gap: spacing[6],
-    alignItems: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    gap: spacing[2],
-  },
-  emoji: {
-    fontSize: 48,
-  },
-  title: {
-    color: colors.text100,
-    fontSize: font['2xl'],
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    color: colors.text500,
-    fontSize: font.sm,
-    textAlign: 'center',
   },
 })
