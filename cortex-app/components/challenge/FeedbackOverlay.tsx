@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native'
+import Animated, { ZoomIn, FadeInRight, FadeInDown } from 'react-native-reanimated'
 import { Button } from '../ui/Button'
 import { colors, font, spacing } from '../../lib/theme'
 import type { AttemptResult } from '../../types/domain'
@@ -6,57 +7,100 @@ import type { AttemptResult } from '../../types/domain'
 interface FeedbackOverlayProps {
   readonly result: AttemptResult
   readonly isLast: boolean
+  readonly consecutiveCorrect: number
   readonly onNext: () => void
 }
 
-/** Bottom sheet feedback shown after answering: correct/wrong + XP + explanation + next button. */
-export const FeedbackOverlay = ({ result, isLast, onNext }: FeedbackOverlayProps) => (
-  <View style={styles.container}>
-    <View style={styles.resultRow}>
-      <Text style={[styles.resultText, result.isCorrect ? styles.correctText : styles.wrongText]}>
-        {result.isCorrect ? '✓ Correto!' : '✗ Incorreto'}
-      </Text>
-      <Text style={styles.xpText}>+{result.xpEarned} XP</Text>
+/** Bottom sheet shown after answering: animated icon, XP entry, combo badge. */
+export const FeedbackOverlay = ({
+  result,
+  isLast,
+  consecutiveCorrect,
+  onNext,
+}: FeedbackOverlayProps) => {
+  const isCorrect = result.isCorrect
+  const borderColor = isCorrect ? colors.emerald500 : colors.red500
+
+  return (
+    <View style={[styles.container, { borderTopColor: borderColor }]}>
+      <View style={styles.topRow}>
+        <Animated.Text
+          entering={ZoomIn.duration(300)}
+          style={[styles.resultIcon, isCorrect ? styles.correctIcon : styles.wrongIcon]}
+        >
+          {isCorrect ? '✓' : '✗'}
+        </Animated.Text>
+
+        <Animated.Text
+          entering={FadeInRight.delay(150).duration(300)}
+          style={styles.xpText}
+        >
+          +{result.xpEarned} XP
+        </Animated.Text>
+
+        {consecutiveCorrect >= 2 ? (
+          <Animated.View
+            entering={FadeInDown.delay(100).duration(300)}
+            style={styles.comboBadge}
+          >
+            <Text style={styles.comboText}>🔥 Combo ×{consecutiveCorrect}</Text>
+          </Animated.View>
+        ) : null}
+      </View>
+
+      {result.explanation ? (
+        <Text style={styles.explanation}>{result.explanation}</Text>
+      ) : null}
+
+      <Button
+        label={isLast ? 'Ver Resultado' : 'Próxima Questão'}
+        onPress={onNext}
+        variant="primary"
+      />
     </View>
-    {result.explanation ? (
-      <Text style={styles.explanation}>{result.explanation}</Text>
-    ) : null}
-    <Button
-      label={isLast ? 'Ver Resultado' : 'Próxima Questão'}
-      onPress={onNext}
-      variant="primary"
-    />
-  </View>
-)
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.bg900,
-    borderTopWidth: 1,
-    borderTopColor: colors.bg800,
+    borderTopWidth: 3,
     paddingHorizontal: spacing[4],
     paddingTop: spacing[4],
     paddingBottom: spacing[8],
     gap: spacing[3],
   },
-  resultRow: {
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing[2],
+    gap: spacing[3],
+    flexWrap: 'wrap',
   },
-  resultText: {
-    fontSize: font.base,
-    fontWeight: '700',
+  resultIcon: {
+    fontSize: font['2xl'],
+    fontWeight: '800',
   },
-  correctText: {
+  correctIcon: {
     color: colors.emerald400,
   },
-  wrongText: {
+  wrongIcon: {
     color: colors.red400,
   },
   xpText: {
     color: colors.indigo400,
+    fontSize: font.base,
+    fontWeight: '700',
+  },
+  comboBadge: {
+    backgroundColor: colors.amber500_10,
+    borderRadius: 20,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1],
+  },
+  comboText: {
+    color: colors.amber500,
     fontSize: font.sm,
+    fontWeight: '600',
   },
   explanation: {
     color: colors.text400,
