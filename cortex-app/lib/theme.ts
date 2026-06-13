@@ -23,6 +23,12 @@ export const colors = {
   red500_10: 'rgba(239,68,68,0.1)',
   // Violet
   violet500: '#8b5cf6',
+  // Amber (combo)
+  amber500: '#f59e0b',
+  amber500_10: 'rgba(245,158,11,0.1)',
+  // Orange (streak)
+  orange500: '#f97316',
+  orange500_10: 'rgba(249,115,22,0.1)',
   // Blue
   blue500: '#3b82f6',
   // Rose
